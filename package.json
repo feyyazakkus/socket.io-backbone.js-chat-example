@@ -1,11 +1,15 @@
 {
-  "name": "socket.io-backbone.js-chat-example",
-  "version": "0.0.1",
-  "author": "feyyazakkus",
-  "license": "MIT",
-  "description": "Socket.io & Backbone.js Chat Application Example",
-  "dependencies": {
+    "name": "socket.io-backbone.js-chat-example",
+    "version": "0.0.1",
+    "author": "feyyazakkus",
+    "license": "MIT",
+    "description": "Socket.io & Backbone.js Chat Example",
+    "repository": {
+      "type": "git",
+      "url": "git://github.com/feyyazakkus/socket.io-backbone.js-chat-example.git"
+    },
+    "dependencies": {
     "express": "^4.14.0",
     "socket.io": "^1.5.0"
-  }
+    }
 }
