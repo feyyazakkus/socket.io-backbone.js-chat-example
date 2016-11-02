@@ -37,7 +37,6 @@ io.on('connection', function (socket) {
         date = new Date(data.date);
         data.date = pad(date.getHours()) + ':' + pad(date.getMinutes());
 
-        console.log(data);
         io.emit('message', data);
     });
 
