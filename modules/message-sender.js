@@ -40,9 +40,10 @@ var TextMessageSender = (function () {
 
 var LinkMessageSender = (function () {
 
-    var pattern = /https?:\/\/(www)?\.?([\w\-]+)\.([\w]+)/gm,
+    var pattern = /(?:(?:https?:\/\/)|(?:www\.)?)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b(?:[-a-zA-Z0-9@:%_\+.~#?&/=]*)/g,
         textMessage = '',
-        matches = [];
+        matches = [],
+        httpText = '';
 
     function LinkMessageSender(socketObj, messageInput) {
         this.messageInput = messageInput;
@@ -54,9 +55,13 @@ var LinkMessageSender = (function () {
 
                 matches = pattern.exec(this.messageInput.val());
 
+                if (matches[0].search(/http/i) == -1) {
+                    httpText = 'http\:\/\/';
+                }
+
                 console.log(matches);
 
-                textMessage = matches['input'].replace(matches[0], '<a target="_blank" href="'+matches[0]+'">'+matches[0]+'</a>');
+                textMessage = matches['input'].replace(matches[0], '<a target="_blank" href="'+httpText + matches[0]+'">'+matches[0]+'</a>');
                 messageData.message = textMessage;
 
                 this.socketObj.emit('message', messageData);
