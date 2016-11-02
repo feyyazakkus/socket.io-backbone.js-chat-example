@@ -65,19 +65,27 @@ App.ChatView = Backbone.View.extend({
 	// send message to the server
 	sendMessage: function () {
 
-		var message = $('#message').val();
+        var messageSender, senderClass, data, pattern, res;
 
-		if (message != "") {
-			var data = {
-				username: this.username,
-	            message: message,
-				type: 'message',
-	            date: Date.now()
-	        };
+        pattern = /((https?):\/\/)?(www)?\.?([\w\-]+)\.([\w]+)/gm;
+        res = pattern.test( $('#input-message').val());
 
-	        this.socket.emit('message', data);
-	        $('#message').val('');	
-		}
+        if (res) {
+            senderClass = new LinkMessageSender(this.socket, $('#input-message'));
+        }
+        else {
+            senderClass = new TextMessageSender(this.socket, $('#input-message'));
+        }
+
+        messageSender = new MessageSender(senderClass);
+
+        data = {
+            username: this.username,
+            type: 'message',
+            date: Date.now()
+        };
+
+        messageSender.send(data);
 		
         return false;
 	},

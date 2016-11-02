@@ -213,6 +213,9 @@ body {
   word-wrap: break-word;
   position: relative;
 }
+.ui .messages li .message a {
+  color: #333;
+}
 .ui .messages li .message:before {
   content: '';
   position: absolute;
