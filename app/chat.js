@@ -65,9 +65,9 @@ App.ChatView = Backbone.View.extend({
 	// send message to the server
 	sendMessage: function () {
 
-        var messageSender, senderClass, data, pattern, res;
+        var messageSender, senderClass, data, pattern, res = false;
 
-        pattern = /((https?):\/\/)?(www)?\.?([\w\-]+)\.([\w]+)/gm;
+        pattern = /https?:\/\/(www)?\.?([\w\-]+)\.([\w]+)/gm;
         res = pattern.test( $('#input-message').val());
 
         if (res) {
