@@ -5,7 +5,7 @@ app.use(express.static(__dirname + '/'));
 
 var server = app.listen(3000, function () {
     console.log("Server running on port 3000..");
-})
+});
 
 var io = require('socket.io').listen(server);
 
@@ -20,6 +20,13 @@ io.on('connection', function (socket) {
     var user = {
         username: socket.handshake.query['username'],
         status: 'online'
+    },
+    date = new Date(),
+    systemMessage = {
+        username: 'system',
+        message: user.username + ' joined chat.',
+        type: 'info',
+        date: pad(date.getHours()) + ':' + pad(date.getMinutes())
     };
 
     addUser(user);
@@ -27,14 +34,19 @@ io.on('connection', function (socket) {
 
     socket.on('message', function (data) {
 
-        var date = new Date(data.date);
-        var time = pad(date.getHours()) + ':' + pad(date.getMinutes());
-        data.date = time;
+        date = new Date(data.date);
+        data.date = pad(date.getHours()) + ':' + pad(date.getMinutes());
+
+        console.log(data);
         io.emit('message', data);
     });
 
     socket.on('disconnect', function () {
         console.log(user.username + ' disconnected.' );
+
+        systemMessage.message = user.username + ' disconnected.';
+
+        io.emit('message', systemMessage);
 
         updateStatus(user, 'offline');
         io.emit('users', users);
@@ -42,6 +54,8 @@ io.on('connection', function (socket) {
 
     // send users to all clients
     io.emit('users', users);
+
+    socket.broadcast.emit('message', systemMessage);
 });
 
 

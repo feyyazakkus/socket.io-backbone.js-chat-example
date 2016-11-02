@@ -27,11 +27,15 @@ App.ChatView = Backbone.View.extend({
 		this.socket.on('message', function (data) {
 
 			self.messageCount++;
+			console.log(data);
 			$('.count span').html(self.messageCount);
 
 			data.position = self.username == data.username ? 'right' : 'left';
 
-		    $(".messages").append(self.messageTemplate(data));
+		    $(".messages")
+				.append(self.messageTemplate(data))
+				.find('.message')
+				.addClass(data.type);
 
 		    // animate scroll to bottom of message box
 			var scroll = document.getElementById("messages").scrollHeight;
@@ -68,6 +72,7 @@ App.ChatView = Backbone.View.extend({
 			var data = {
 				username: this.username,
 	            message: message,
+				type: 'message',
 	            date: Date.now()
 	        };
 
