@@ -32,10 +32,9 @@ App.ChatView = Backbone.View.extend({
 
 			data.position = self.username == data.username ? 'right' : 'left';
 
-		    $(".messages")
-				.append(self.messageTemplate(data))
-				.find('.message')
-				.addClass(data.type);
+			var messageObj = $(".messages");
+
+		    messageObj.append(self.messageTemplate(data));
 
 		    // animate scroll to bottom of message box
 			var scroll = document.getElementById("messages").scrollHeight;
