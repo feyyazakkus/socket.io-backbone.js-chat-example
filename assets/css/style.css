@@ -258,6 +258,24 @@ body {
   right: 16px;
   border-bottom-color: #7bc4ef;
 }
+.ui .messages li.left .info {
+  background-color: #ccc;
+  float: left;
+  color: #333;
+}
+.ui .messages li.left .info:before {
+  right: 16px;
+  border-bottom-color: #ccc;
+}
+.ui .messages li.right .info {
+  background-color: #ccc;
+  color: #333;
+  float: left;
+}
+.ui .messages li.right .info:before {
+  right: 16px;
+  border-bottom-color: #ccc;
+}
 .ui .write-form {
   height: 150px;
   border-top: 2px solid #fff;
