@@ -16,15 +16,15 @@ App.ChatView = Backbone.View.extend({
 
         this.messageCount = 0;
         this.username = options.username;
-        
-        // create socket connection
-		this.socket = io.connect('', {
-			query: 'username=' + self.username
-		});
 
+        if (!App.socket) {
+        	App.socket = io.connect('', {
+	            query: 'username=' + this.username
+	        });
+        }
 
 		// keep track of chat messages
-		this.socket.on('message', function (data) {
+		App.socket.on('message', function (data) {
 
 			self.messageCount++;
 			console.log(data);
@@ -45,12 +45,14 @@ App.ChatView = Backbone.View.extend({
 		});
 
 		// keep track of users and users status
-        this.socket.on('users', function (data) {
+        App.socket.on('users', function (data) {
             
             // remove current user
             data = _.reject(data, function (user) {
             	return user.username === self.username;
             });
+
+            console.log(data);
 
             $('menu.list-friends').html(self.usersTemplate({users: data}))
         });
@@ -71,10 +73,10 @@ App.ChatView = Backbone.View.extend({
         res = pattern.test( $('#input-message').val());
 
         if (res) {
-            senderClass = new LinkMessageSender(this.socket, $('#input-message'));
+            senderClass = new LinkMessageSender(App.socket, $('#input-message'));
         }
         else {
-            senderClass = new TextMessageSender(this.socket, $('#input-message'));
+            senderClass = new TextMessageSender(App.socket, $('#input-message'));
         }
 
         messageSender = new MessageSender(senderClass);
@@ -100,7 +102,7 @@ App.ChatView = Backbone.View.extend({
 
 	// disconnect user
 	logout: function () {
-		this.socket.disconnect();
+		App.socket.disconnect();
 		window.location = '/';
 	}
 

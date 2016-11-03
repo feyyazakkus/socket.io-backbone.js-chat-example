@@ -6,13 +6,26 @@ App.HomeView = Backbone.View.extend({
 
     joinChat: function () {
 
+        $('.alert').removeClass('show');
+
         var username = $('#username').val();
 
         if (username != '') {
-            app.navigate('chat?username=' + username , {
-                trigger: true
-            });    
-        }       
+
+            App.socket = io.connect('', {
+                query: 'username=' + username
+            });
+
+            App.socket.on('user_validation', function (data) {
+                if (data.success) {
+                    app.navigate('chat?username=' + username , {
+                        trigger: true
+                    });
+                } else {
+                    $('.alert').addClass('show');
+                }
+            });
+        }
 
         return false;
     },
