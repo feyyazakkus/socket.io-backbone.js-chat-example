@@ -3,7 +3,8 @@ App.ChatView = Backbone.View.extend({
 	events: {
 		'click #send': 'sendMessage',
 		'click .refresh': 'refresh',
-		'click .logout': 'logout'
+		'click .logout': 'logout',
+		'click .list-friends li': 'selectUser'
 	},
 
 	messageTemplate: _.template($("#message").html()),
@@ -16,6 +17,7 @@ App.ChatView = Backbone.View.extend({
 
         this.messageCount = 0;
         this.username = options.username;
+        this.receiver = 'everyone';
 
         if (!App.socket) {
         	App.socket = io.connect('', {
@@ -84,7 +86,8 @@ App.ChatView = Backbone.View.extend({
         data = {
             username: this.username,
             type: 'message',
-            date: Date.now()
+            date: Date.now(),
+            receiver: this.receiver
         };
 
         messageSender.send(data);
@@ -92,6 +95,10 @@ App.ChatView = Backbone.View.extend({
         return false;
 	},
 
+	selectUser: function (event) {
+        console.log(event.currentTarget.id);
+        this.receiver = event.currentTarget.id;
+    },
 
 	// clear message box
 	refresh: function () {

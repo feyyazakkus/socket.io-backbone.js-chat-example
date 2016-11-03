@@ -32,7 +32,7 @@
     <li><p class="no-user">No user online..</p></li>
     <% } %>
     <% _.each(users, function(user) { %>
-    <li>
+    <li id="<%= user.username %>">
         <i class="fa fa-user fa-fw user-icon"></i>
         <div class="info">
             <div class="user"><%= user.username %></div>

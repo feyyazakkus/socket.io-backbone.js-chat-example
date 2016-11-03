@@ -122,11 +122,11 @@ body {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  margin: 0 0 10px 15px;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
+  padding: 6px 15px;
+  cursor: pointer;
+}
+.ui .list-friends > li:hover {
+  background-color: #32353e;
 }
 .ui .list-friends .info {
   -webkit-box-flex: 1;
