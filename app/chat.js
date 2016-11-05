@@ -7,10 +7,6 @@ App.ChatView = Backbone.View.extend({
 		'click .list-friends li': 'selectUser'
 	},
 
-	messageTemplate: _.template($("#message").html()),
-
-	usersTemplate: _.template($("#chatUsers").html()),
-
 	initialize: function (options) {
 
 		var self = this;
@@ -18,6 +14,7 @@ App.ChatView = Backbone.View.extend({
         this.messageCount = 0;
         this.username = options.username;
         this.receiver = 'everyone';
+
 
         if (!App.socket) {
         	App.socket = io.connect('', {
@@ -29,7 +26,6 @@ App.ChatView = Backbone.View.extend({
 		App.socket.on('message', function (data) {
 
 			self.messageCount++;
-			console.log(data);
 			$('.count span').html(self.messageCount);
 
 			data.position = self.username == data.username ? 'right' : 'left';
@@ -85,9 +81,9 @@ App.ChatView = Backbone.View.extend({
 
         data = {
             username: this.username,
+            receiver: this.receiver,
             type: 'message',
-            date: Date.now(),
-            receiver: this.receiver
+            date: Date.now()
         };
 
         messageSender.send(data);
@@ -96,8 +92,17 @@ App.ChatView = Backbone.View.extend({
 	},
 
 	selectUser: function (event) {
-        console.log(event.currentTarget.id);
+
         this.receiver = event.currentTarget.id;
+
+        $('.list-friends li').removeClass('active');
+        $('#'+this.receiver).addClass('active');
+        
+        $('.receiver').html(this.receiverTemplate({
+        	receiver: this.receiver
+        }));
+
+        this.refresh();
     },
 
 	// clear message box
@@ -111,6 +116,12 @@ App.ChatView = Backbone.View.extend({
 	logout: function () {
 		App.socket.disconnect();
 		window.location = '/';
-	}
+	},
+
+	messageTemplate: _.template($("#message").html()),
+
+	usersTemplate: _.template($("#chatUsers").html()),
+
+	receiverTemplate: _.template($("#receiver").html())
 
 });

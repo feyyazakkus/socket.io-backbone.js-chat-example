@@ -19,7 +19,8 @@ io.on('connection', function (socket) {
 
     var user = {
         username: socket.handshake.query['username'],
-        status: 'online'
+        status: 'online',
+        socketId: socket.id
     };
 
     acceptUser(socket, user);
@@ -30,7 +31,14 @@ io.on('connection', function (socket) {
         date = new Date(data.date);
         data.date = pad(date.getHours()) + ':' + pad(date.getMinutes());
 
-        io.emit('message', data);
+        if (data.receiver == 'everyone') {
+            io.emit('message', data);
+        } else {
+            var socketId = getSocketId(data.receiver);
+            io.to(socketId).emit('message', data); // receiver
+            io.to(socket.id).emit('message', data); // current user
+        }
+
     });
 
     // listen disconnect event
@@ -96,6 +104,14 @@ function sendSysteemMessage(socket, message) {
         date: pad(date.getHours()) + ':' + pad(date.getMinutes())
     };
     socket.broadcast.emit('message', systemMessage);
+}
+
+function getSocketId(username) {
+    for (var i = 0; i < users.length; i++) {
+        if (users[i]['username'] == username) {
+            return users[i]['socketId'];
+        }
+    }
 }
 
 function updateStatus(user, status) {

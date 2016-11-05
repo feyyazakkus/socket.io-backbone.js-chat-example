@@ -102,6 +102,18 @@ body {
   color: #6d738d;
 }
 
+.ui .receiver {
+  float: left;
+  height: 100%;
+}
+.ui .avatar {  
+  width: 70px;
+  text-align: center;
+}
+.ui .avatar .fa {
+  font-size: 40px;
+  padding: 14px;
+}
 .ui .avatar > img,
 .ui .list-friends img {
   border-radius: 50%;
@@ -124,8 +136,10 @@ body {
   display: flex;
   padding: 6px 15px;
   cursor: pointer;
+
 }
-.ui .list-friends > li:hover {
+.ui .list-friends > li:hover,
+.ui .list-friends > li.active {
   background-color: #32353e;
 }
 .ui .list-friends .info {
@@ -163,10 +177,17 @@ body {
   height: 70px;
   border-bottom: 2px solid #fff;
 }
-.ui .no-user {
+.ui .top:after {
+  clear: both;
+}
+.ui .list-friends .no-user {
+  pointer-events: none;
+}
+.ui .list-friends .no-user p {
   padding-left: 10px;
   color: #fff;
 }
+
 .ui .messages {
   height: auto;
   list-style: none;
