@@ -71,7 +71,13 @@ App.ChatView = Backbone.View.extend({
         res = pattern.test( $('#input-message').val());
 
         if (res) {
-            senderClass = new LinkMessageSender(App.socket, $('#input-message'));
+            res = /([a-zA-Z-0-9_]+)\.(jpg|png|gif)/.test( $('#input-message').val());
+            if (res) {
+                senderClass = new ImageLinkMessageSender(App.socket, $('#input-message'));
+            }
+            else {
+                senderClass = new LinkMessageSender(App.socket, $('#input-message'));
+            }
         }
         else {
             senderClass = new TextMessageSender(App.socket, $('#input-message'));
