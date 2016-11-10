@@ -1,7 +1,7 @@
 {
     "name": "socket.io-backbone.js-chat-example",
     "version": "0.0.1",
-    "author": "feyyazakkus",
+    "author": "Feyyaz Akkuş",
     "license": "MIT",
     "description": "Socket.io & Backbone.js Chat Example",
     "repository": {
