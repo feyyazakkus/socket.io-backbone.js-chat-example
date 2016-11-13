@@ -20,7 +20,7 @@
 <script type="text/template" id="message">
     <li class="<%= position %>">
         <div class="head">
-            <span class="time"><%= date %></span>
+            <span class="time"><%= time %></span>
             <span class="name"><%= username %></span>
         </div>
         <div class="<%= type %>"><%= message %></div>
@@ -32,6 +32,7 @@
         <i class="fa fa-users fa-fw user-icon"></i>
         <div class="info">
             <div class="user">Grup Chat</div>
+            <div class="message-alert label label-warning">New message</div>
         </div>
     </li>
     <% if (_.isEmpty(users)) { %>
@@ -43,6 +44,7 @@
         <div class="info">
             <div class="user"><%= user.username %></div>
             <div class="status <%= user.status %>"> <%= user.status %></div>
+            <div class="message-alert label label-warning">New message</div>
         </div>
     </li>
     <% }); %>

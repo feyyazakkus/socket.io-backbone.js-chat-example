@@ -2,7 +2,7 @@ App.ChatView = Backbone.View.extend({
 	
 	events: {
 		'click #send': 'sendMessage',
-		'click .refresh': 'refresh',
+		'click .clear': 'clear',
 		'click .logout': 'logout',
 		'click .list-friends li': 'selectUser'
 	},
@@ -10,60 +10,85 @@ App.ChatView = Backbone.View.extend({
 	initialize: function (options) {
 
 		var self = this;
-
         this.messageCount = 0;
         this.username = options.username;
         this.receiver = 'everyone';
-
+        this.messages = {};		
 
         if (!App.socket) {
         	App.socket = io.connect('', {
-	            query: 'username=' + this.username
-	        });
+               query: 'username=' + this.username
+           });
         }
 
 		// keep track of chat messages
 		App.socket.on('message', function (data) {
 
-			self.messageCount++;
-			$('.count span').html(self.messageCount);
+			data.position = 'left';
 
-			data.position = self.username == data.username ? 'right' : 'left';
+			// save message
+			if (data.type != "info") {
 
-			var messageObj = $(".messages");
+                var user = '';
+                if (data.receiver == 'everyone') {
+                    user = 'everyone'
+                } else {
+                    user = data.username;
+                }
 
-		    messageObj.append(self.messageTemplate(data));
+                if(!self.messages[user]) {
+                    self.messages[user] = [];
+                }
+                self.messages[user].push(data);
+                console.log(self.messages);
+            } else {
+                self.print(data);
+            }
 
-		    // animate scroll to bottom of message box
-			var scroll = document.getElementById("messages").scrollHeight;
-			$(".chat-body").animate({
-			  scrollTop: scroll
-			}, 300);
+            // print message or show alert
+            if (data.receiver == 'everyone')  {
+                if (self.receiver == 'everyone') {
+                    self.print(data);
+                } else {
+                    $('#everyone').find('.message-alert').addClass('visible');
+                }
 
-		});
+            } else {
+                if (self.receiver == data.username) {
+                    self.print(data);
+                } else {
+                    $('#'+data.username).find('.message-alert').addClass('visible');    
+                }
+            }
 
-		// keep track of users and users status
+            self.setScroll();
+
+        });
+
+		// keep track of users
         App.socket.on('users', function (data) {
-            
+
             // remove current user
             data = _.reject(data, function (user) {
             	return user.username === self.username;
             });
 
-            console.log(data);
-
             $('menu.list-friends').html(self.usersTemplate({users: data}))
         });
 
-	},
+    },
 
-	render: function () {
-		this.$el.html(this.template({username: this.username}));
-        return this;
-	},
+    render: function () {
+      this.$el.html(this.template({username: this.username}));
+      return this;
+  },
 
 	// send message to the server
 	sendMessage: function () {
+        
+        if ($('#input-message').val() == '') {
+            return false;
+        }
 
         var messageSender, senderClass, data, pattern, res;
 
@@ -85,20 +110,38 @@ App.ChatView = Backbone.View.extend({
 
         messageSender = new MessageSender(senderClass);
 
+
+        var date = new Date();
+        var time = App.Utils.pad(date.getHours()) + ':' + App.Utils.pad(date.getMinutes());
+
         data = {
             username: this.username,
             receiver: this.receiver,
             type: 'message',
-            date: Date.now()
+            date: date,
+            time: time
         };
 
         messageSender.send(data);
-		
+
+        // print message
+        data.position = 'right';
+        this.print(data);
+        this.setScroll();
+
+        // save message
+        if(!this.messages[this.receiver]) {
+            this.messages[this.receiver] = [];
+        }
+        this.messages[this.receiver].push(data);
+        console.log(this.messages);
+
         return false;
-	},
+    },
 
-	selectUser: function (event) {
+    selectUser: function (event) {
 
+        this.refresh();
         this.receiver = event.currentTarget.id;
 
         $('.list-friends li').removeClass('active');
@@ -108,15 +151,50 @@ App.ChatView = Backbone.View.extend({
         	receiver: this.receiver
         }));
 
-        this.refresh();
+        var conversation = this.messages[this.receiver];
+
+        if (conversation) {
+            var msgTmpl = '';
+
+            for (var i = 0; i < conversation.length; i++) {
+                msgTmpl += this.messageTemplate(conversation[i]);
+            }
+
+            this.messageCount = conversation.length;
+            $('.count span').html(this.messageCount);
+            $(".messages").append(msgTmpl);
+
+            this.setScroll();
+        }
+
+        $('#'+this.receiver).find('.message-alert').removeClass('visible');
+    },
+
+    // print message to message box
+    print: function (data) {
+        this.messageCount++;
+        $('.count span').html(this.messageCount);
+        $(".messages").append(this.messageTemplate(data));
     },
 
 	// clear message box
 	refresh: function () {
-		this.messageCount = 0;
+        this.messageCount = 0;
 		$('.count span').html(this.messageCount);
 		$(".messages").html('');
 	},
+
+    // remove messages
+    clear: function () {
+        this.refresh();
+        this.messages[this.receiver] = [];
+    },
+
+    // set scroll to bottom of message box
+    setScroll: function () {
+        var scroll = document.getElementById("messages").scrollHeight;
+        $(".chat-body").scrollTop(scroll);
+    },
 
 	// disconnect user
 	logout: function () {

@@ -28,17 +28,12 @@ io.on('connection', function (socket) {
     // listen message event
     socket.on('message', function (data) {
 
-        date = new Date(data.date);
-        data.date = pad(date.getHours()) + ':' + pad(date.getMinutes());
-
         if (data.receiver == 'everyone') {
-            io.emit('message', data);
+            socket.broadcast.emit('message', data);
         } else {
             var socketId = getSocketId(data.receiver);
-            io.to(socketId).emit('message', data); // receiver
-            io.to(socket.id).emit('message', data); // current user
+            socket.broadcast.to(socketId).emit('message', data); // receiver
         }
-
     });
 
     // listen disconnect event
@@ -46,8 +41,6 @@ io.on('connection', function (socket) {
         
         console.log(user.username + ' disconnected.');
         sendSysteemMessage(socket, user.username + ' disconnected.');
-
-        //updateStatus(user, 'offline');
 
         // remove user from users array
         users.splice(users.indexOf(user), 1);
@@ -101,7 +94,8 @@ function sendSysteemMessage(socket, message) {
         username: 'system',
         message: message,
         type: 'info',
-        date: pad(date.getHours()) + ':' + pad(date.getMinutes())
+        date: date,
+        time: pad(date.getHours()) + ':' + pad(date.getMinutes())
     };
     socket.broadcast.emit('message', systemMessage);
 }
@@ -110,14 +104,6 @@ function getSocketId(username) {
     for (var i = 0; i < users.length; i++) {
         if (users[i]['username'] == username) {
             return users[i]['socketId'];
-        }
-    }
-}
-
-function updateStatus(user, status) {
-    for (var i = 0; i < users.length; i++) {
-        if (users[i]['username'] == user.username) {
-            users[i]['status'] = status;
         }
     }
 }

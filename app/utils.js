@@ -16,6 +16,10 @@ App.Utils = {
         });
 
         $.when.apply(null, deferreds).done(callback);
+    },
+
+    pad: function (value) {
+        return value.toString().length > 1 ? value : '0' + value;
     }
 
 };

@@ -15,7 +15,8 @@ App.Router = Backbone.Router.extend({
         
         if (!this.homeView) {
             this.homeView = new App.HomeView();
-            this.$container.html(this.homeView.render().el);    
+            this.$container.html(this.homeView.render().el);
+            $('#username').focus();
         }
     },
 
