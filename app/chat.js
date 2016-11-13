@@ -10,16 +10,16 @@ App.ChatView = Backbone.View.extend({
 	initialize: function (options) {
 
 		var self = this;
-        this.messageCount = 0;
-        this.username = options.username;
-        this.receiver = 'everyone';
-        this.messages = {};		
+		this.messageCount = 0;
+		this.username = options.username;
+		this.receiver = 'everyone';
+		this.messages = {};		
 
-        if (!App.socket) {
-        	App.socket = io.connect('', {
-               query: 'username=' + this.username
-           });
-        }
+		if (!App.socket) {
+			App.socket = io.connect('', {
+			   query: 'username=' + this.username
+		   });
+		}
 
 		// keep track of chat messages
 		App.socket.on('message', function (data) {
@@ -29,172 +29,172 @@ App.ChatView = Backbone.View.extend({
 			// save message
 			if (data.type != "info") {
 
-                var user = '';
-                if (data.receiver == 'everyone') {
-                    user = 'everyone'
-                } else {
-                    user = data.username;
-                }
+				var user = '';
+				if (data.receiver == 'everyone') {
+					user = 'everyone'
+				} else {
+					user = data.username;
+				}
 
-                if(!self.messages[user]) {
-                    self.messages[user] = [];
-                }
-                self.messages[user].push(data);
-                console.log(self.messages);
-            } else {
-                self.print(data);
-            }
+				if(!self.messages[user]) {
+					self.messages[user] = [];
+				}
+				self.messages[user].push(data);
+				console.log(self.messages);
+			} else {
+				self.print(data);
+			}
 
-            // print message or show alert
-            if (data.receiver == 'everyone')  {
-                if (self.receiver == 'everyone') {
-                    self.print(data);
-                } else {
-                    $('#everyone').find('.message-alert').addClass('visible');
-                }
+			// print message or show alert
+			if (data.receiver == 'everyone')  {
+				if (self.receiver == 'everyone') {
+					self.print(data);
+				} else {
+					$('#everyone').find('.message-alert').addClass('visible');
+				}
 
-            } else {
-                if (self.receiver == data.username) {
-                    self.print(data);
-                } else {
-                    $('#'+data.username).find('.message-alert').addClass('visible');    
-                }
-            }
+			} else {
+				if (self.receiver == data.username) {
+					self.print(data);
+				} else {
+					$('#'+data.username).find('.message-alert').addClass('visible');    
+				}
+			}
 
-            self.setScroll();
+			self.setScroll();
 
-        });
+		});
 
 		// keep track of users
-        App.socket.on('users', function (data) {
+		App.socket.on('users', function (data) {
 
-            // remove current user
-            data = _.reject(data, function (user) {
-            	return user.username === self.username;
-            });
+			// remove current user
+			data = _.reject(data, function (user) {
+				return user.username === self.username;
+			});
 
-            $('menu.list-friends').html(self.usersTemplate({users: data}))
-        });
+			$('menu.list-friends').html(self.usersTemplate({users: data}))
+		});
 
-    },
+	},
 
-    render: function () {
-      this.$el.html(this.template({username: this.username}));
-      return this;
+	render: function () {
+	  this.$el.html(this.template({username: this.username}));
+	  return this;
   },
 
 	// send message to the server
 	sendMessage: function () {
-        
-        if ($('#input-message').val() == '') {
-            return false;
-        }
+		
+		if ($('#input-message').val() == '') {
+			return false;
+		}
 
-        var messageSender, senderClass, data, pattern, res;
+		var messageSender, senderClass, data, pattern, res;
 
-        pattern = /(www\.)?([\w\-]+)\.([\w]+)/gm;
-        res = pattern.test( $('#input-message').val());
+		pattern = /(www\.)?([\w\-]+)\.([\w]+)/gm;
+		res = pattern.test( $('#input-message').val());
 
-        if (res) {
-            res = /([a-zA-Z-0-9_]+)\.(jpg|png|gif)/.test( $('#input-message').val());
-            if (res) {
-                senderClass = new ImageLinkMessageSender(App.socket, $('#input-message'));
-            }
-            else {
-                senderClass = new LinkMessageSender(App.socket, $('#input-message'));
-            }
-        }
-        else {
-            senderClass = new TextMessageSender(App.socket, $('#input-message'));
-        }
+		if (res) {
+			res = /([a-zA-Z-0-9_]+)\.(jpg|png|gif)/.test( $('#input-message').val());
+			if (res) {
+				senderClass = new ImageLinkMessageSender(App.socket, $('#input-message'));
+			}
+			else {
+				senderClass = new LinkMessageSender(App.socket, $('#input-message'));
+			}
+		}
+		else {
+			senderClass = new TextMessageSender(App.socket, $('#input-message'));
+		}
 
-        messageSender = new MessageSender(senderClass);
+		messageSender = new MessageSender(senderClass);
 
 
-        var date = new Date();
-        var time = App.Utils.pad(date.getHours()) + ':' + App.Utils.pad(date.getMinutes());
+		var date = new Date();
+		var time = App.Utils.pad(date.getHours()) + ':' + App.Utils.pad(date.getMinutes());
 
-        data = {
-            username: this.username,
-            receiver: this.receiver,
-            type: 'message',
-            date: date,
-            time: time
-        };
+		data = {
+			username: this.username,
+			receiver: this.receiver,
+			type: 'message',
+			date: date,
+			time: time
+		};
 
-        messageSender.send(data);
+		messageSender.send(data);
 
-        // print message
-        data.position = 'right';
-        this.print(data);
-        this.setScroll();
+		// print message
+		data.position = 'right';
+		this.print(data);
+		this.setScroll();
 
-        // save message
-        if(!this.messages[this.receiver]) {
-            this.messages[this.receiver] = [];
-        }
-        this.messages[this.receiver].push(data);
-        console.log(this.messages);
+		// save message
+		if(!this.messages[this.receiver]) {
+			this.messages[this.receiver] = [];
+		}
+		this.messages[this.receiver].push(data);
+		console.log(this.messages);
 
-        return false;
-    },
+		return false;
+	},
 
-    selectUser: function (event) {
+	selectUser: function (event) {
 
-        this.refresh();
-        this.receiver = event.currentTarget.id;
+		this.refresh();
+		this.receiver = event.currentTarget.id;
 
-        $('.list-friends li').removeClass('active');
-        $('#'+this.receiver).addClass('active');
-        
-        $('.receiver').html(this.receiverTemplate({
-        	receiver: this.receiver
-        }));
+		$('.list-friends li').removeClass('active');
+		$('#'+this.receiver).addClass('active');
+		
+		$('.receiver').html(this.receiverTemplate({
+			receiver: this.receiver
+		}));
 
-        var conversation = this.messages[this.receiver];
+		var conversation = this.messages[this.receiver];
 
-        if (conversation) {
-            var msgTmpl = '';
+		if (conversation) {
+			var msgTmpl = '';
 
-            for (var i = 0; i < conversation.length; i++) {
-                msgTmpl += this.messageTemplate(conversation[i]);
-            }
+			for (var i = 0; i < conversation.length; i++) {
+				msgTmpl += this.messageTemplate(conversation[i]);
+			}
 
-            this.messageCount = conversation.length;
-            $('.count span').html(this.messageCount);
-            $(".messages").append(msgTmpl);
+			this.messageCount = conversation.length;
+			$('.count span').html(this.messageCount);
+			$(".messages").append(msgTmpl);
 
-            this.setScroll();
-        }
+			this.setScroll();
+		}
 
-        $('#'+this.receiver).find('.message-alert').removeClass('visible');
-    },
+		$('#'+this.receiver).find('.message-alert').removeClass('visible');
+	},
 
-    // print message to message box
-    print: function (data) {
-        this.messageCount++;
-        $('.count span').html(this.messageCount);
-        $(".messages").append(this.messageTemplate(data));
-    },
+	// print message to message box
+	print: function (data) {
+		this.messageCount++;
+		$('.count span').html(this.messageCount);
+		$(".messages").append(this.messageTemplate(data));
+	},
 
 	// clear message box
 	refresh: function () {
-        this.messageCount = 0;
+		this.messageCount = 0;
 		$('.count span').html(this.messageCount);
 		$(".messages").html('');
 	},
 
-    // remove messages
-    clear: function () {
-        this.refresh();
-        this.messages[this.receiver] = [];
-    },
+	// remove messages
+	clear: function () {
+		this.refresh();
+		this.messages[this.receiver] = [];
+	},
 
-    // set scroll to bottom of message box
-    setScroll: function () {
-        var scroll = document.getElementById("messages").scrollHeight;
-        $(".chat-body").scrollTop(scroll);
-    },
+	// set scroll to bottom of message box
+	setScroll: function () {
+		var scroll = document.getElementById("messages").scrollHeight;
+		$(".chat-body").scrollTop(scroll);
+	},
 
 	// disconnect user
 	logout: function () {
